@@ -59,11 +59,12 @@ class Unit:
         self.x = x
         self.y = y
         self.distance = dist
+        self.stack = [(self.x,self.y)]
+        self.visited = [[]]
 
     def move(self, dir: int) -> str:
         return "%d_%d" % (self.id, dir)
-
-
+        
 class Agent:
     round_num = 0
     """
@@ -134,7 +135,7 @@ class Agent:
             if (value != ""):
                 [id, x, y] = [int(k) for k in value.split("_")]
                 self.opposingUnits.append(Unit(id, x, y, -1))
-
+        
     """
     Updates Agent's own known state of `Match`
     User should edit this according to their `Design

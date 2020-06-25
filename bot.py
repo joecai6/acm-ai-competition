@@ -4,6 +4,8 @@ import random
 import sys
 from collections import deque 
 import time
+import itertools
+
 # Create new agent
 agent = Agent()
 
@@ -12,8 +14,6 @@ agent.initialize()
 
 f = open('console.txt', 'w')
 
-path = []
-go_next = True
 
 def within_map(x,y):
     return x >= 0 and y >= 0 and x < len(game_map[0]) and y < len(game_map)
@@ -32,6 +32,22 @@ def valid_neighbors(cell, visited):
     y = cell[1]
     check_cell(x,y+1, neighbors, game_map, visited) #S
     check_cell(x+1,y+1, neighbors, game_map, visited) #SE
+    check_cell(x,y-1, neighbors, game_map, visited) #N
+    check_cell(x+1,y-1, neighbors, game_map, visited) #NE
+    check_cell(x+1,y, neighbors, game_map, visited) #E
+    check_cell(x-1,y, neighbors, game_map, visited) #W
+    check_cell(x-1,y+1, neighbors, game_map, visited) #SW
+    check_cell(x-1,y-1, neighbors, game_map, visited) #NW
+
+    return neighbors[::-1]
+
+def valid_neighbors2(cell, visited):
+    game_map = agent.map
+    neighbors = []
+    x = cell[0]
+    y = cell[1]
+    check_cell(x,y+1, neighbors, game_map, visited) #S
+    check_cell(x+1,y+1, neighbors, game_map, visited) #SE
     check_cell(x+1,y-1, neighbors, game_map, visited) #NE
     check_cell(x+1,y, neighbors, game_map, visited) #E
     check_cell(x,y-1, neighbors, game_map, visited) #N
@@ -39,7 +55,7 @@ def valid_neighbors(cell, visited):
     check_cell(x-1,y+1, neighbors, game_map, visited) #SW
     check_cell(x-1,y-1, neighbors, game_map, visited) #NW
 
-    return neighbors[::-1]
+    return neighbors
 
 def shortest_path_moves(curr, dest):
     if(curr == None or dest == None):
@@ -222,12 +238,39 @@ def blind_spots(seeker):
     # vision lines of the hider
     return None
 
-def opposite_direction(seeker):
+def opposite_direction(hider, seeker):
     #go in opposite direction of the seeker
-    return None
+    if(calculate_dir(hider.x,hider.y,seeker.x,seeker.y) == Direction.NORTH.value):
+        return Direction.SOUTH.value
+    elif(calculate_dir(hider.x,hider.y,seeker.x,seeker.y) == Direction.SOUTH.value):
+        return Direction.NORTH.value
+    elif(calculate_dir(hider.x,hider.y,seeker.x,seeker.y) == Direction.EAST.value):
+        return Direction.WEST.value
+    elif(calculate_dir(hider.x,hider.y,seeker.x,seeker.y) == Direction.WEST.value):
+        return Direction.EAST.value
+    elif(calculate_dir(hider.x,hider.y,seeker.x,seeker.y) == Direction.SOUTHEAST.value):
+        return Direction.NORTHWEST.value
+    elif(calculate_dir(hider.x,hider.y,seeker.x,seeker.y) == Direction.NORTHEAST.value):
+        return Direction.SOUTHWEST.value
+    elif(calculate_dir(hider.x,hider.y,seeker.x,seeker.y) == Direction.SOUTHWEST.value):
+        return Direction.NORTHEAST.value
+    elif(calculate_dir(hider.x,hider.y,seeker.x,seeker.y) == Direction.NORTHWEST.value):
+        return Direction.SOUTHEAST.value
+    else:
+        return Direction.STILL.value
 
 unit = agent.units[0]
 init = (unit.x, unit.y)
+init2 = (0,0)
+init3 = (0,0)
+if len(agent.units) > 1:
+    unit2 = agent.units[1]
+    init2 = (unit2.x, unit2.y)
+
+if len(agent.units) > 2:
+    unit3 = agent.units[2]
+    init3 = (unit3.x, unit3.y)
+
 game_map = agent.map
 
 #print_map(game_map)
@@ -262,9 +305,26 @@ stack = []
 stack.append(init)
 visited = [[False for i in range(len(game_map))] for j  in range(len(game_map[0]))]
 chase = []
-found = False
-hide_cell = (None, None)
+chasing = False
+path = []
+go_next = True
 
+
+path2 = []
+stack2 = []
+stack2.append(init2)
+visited2 = [[False for i in range(len(game_map))] for j  in range(len(game_map[0]))]
+chase2 = []
+chasing2 = False
+
+path3 = []
+stack3 = []
+stack3.append(init3)
+visited3 = [[False for i in range(len(game_map))] for j  in range(len(game_map[0]))]
+chase3 = []
+chasing3 = False
+
+hide_stack = []
 while True:
 
     commands = []
@@ -272,7 +332,6 @@ while True:
     opposingUnits = agent.opposingUnits # list of units on other team that you can see
     game_map = agent.map # the map
     round_num = agent.round_num # the round number
-
     if (agent.team == Team.SEEKER):
         # AI Code for seeker goes here
        
@@ -285,25 +344,23 @@ while True:
 
              # choose a random direction to move in
             #randomDirection = random.choice(list(Direction)).value
-
+            print("aaaaaa", file=f)
             #seeds that dont work 102892
             if unit.id == units[0].id: 
-                if opposingUnits and not found:
-                    found = True
+
+                if not chase and chasing:
+                    chasing = False
+                    
+                if opposingUnits and not chasing and unit.distance < 50:
+                    chasing = True
+                    path=[]
                     hide = opposingUnits[0]
                     hide_cell = (hide.x, hide.y)
                     print("hide spot", hide.id, (hide.x,hide.y), file =f)
                     chase = a_star((unit.x,unit.y),(hide.x,hide.y))
-                
-                if found and opposingUnits:
-                    if hide_cell[0] == unit.x and hide_cell[1] == unit.y:
-                        print("Hit", file=f)
-                        stack = [(unit.x, unit.y)]
-                        path = []
-                        found = False
-                        continue
 
-                if chase:
+                if chase and chasing:
+                    print("chase", chase, (unit.x,unit.y), file =f)
                     next_cell= chase.pop(0)
                     direction = calculate_dir(unit.x, unit.y, next_cell[0], next_cell[1])
                 elif path:
@@ -312,14 +369,16 @@ while True:
                     print(direction, (unit.x,unit.y), next_cell, file=f)
                 elif stack:
                     next_cell = stack.pop()
-                    if(len(valid_neighbors((unit.x, unit.y), visited)) == 0):
+                    if(next_cell != (unit.x,unit.y) and not next_cell in valid_neighbors((unit.x,unit.y),visited)):
+                        print("NEEED TO PATH BACK", file=f)
                         start = time.time()
                         path = a_star((unit.x,unit.y), next_cell)
+                        visited[next_cell[0]][next_cell[1]] = True
                         adj = valid_neighbors(next_cell, visited)
+                        print("path to neighbors", adj, file=f)
                         for n in adj:
-                            if not visited[n[0]][n[1]]:
                                 stack.append(n)
-                        #print(time.time()-start, file=f)
+                        print(time.time()-start, file=f)
                     else:
                         visited[next_cell[0]][next_cell[1]] = True
                         direction = calculate_dir(unit.x, unit.y, next_cell[0], next_cell[1])
@@ -327,29 +386,60 @@ while True:
                         for n in adj:
                             if not visited[n[0]][n[1]] and not n in stack:
                                 stack.append(n)
-                
-                print("Stack:", stack, "Current:", (unit.x, unit.y), file=f)
-                print("Path:", path, file=f)
-                print(direction, file=f)
-                '''
-                if(path):
-                    if(opposingUnits and not found):
-                        found = True
-                        for hide in opposingUnits:
-                            print("hide spot", hide.id, (hide.x,hide.y), file =f)
-                            path = shortest_path_moves((unit.x,unit.y),(hide.x+1,hide.y))
-                    next_cell = path.pop(0)
+                    print("curr", (unit.x,unit.y), "stack", stack, file=f)
+            elif unit.id == units[1].id:
+                if not chase2 and chasing2:
+                    chasing2 = False
+                    
+                if opposingUnits and not chasing2 and unit.distance < 50:
+                    chasing2 = True
+                    path2=[]
+                    hide = opposingUnits[0]
+                    hide_cell = (hide.x, hide.y)
+                    print("hide spot", hide.id, (hide.x,hide.y), file =f)
+                    chase2 = a_star((unit.x,unit.y),(hide.x,hide.y))
+
+                if chase2 and chasing2:
+                    print("chase", chase2, (unit.x,unit.y), file =f)
+                    next_cell2= chase2.pop(0)
+                    direction = calculate_dir(unit.x, unit.y, next_cell2[0], next_cell2[1])
+                elif path2:
+                    next_cell2 = path2.pop(0)
+                    direction = calculate_dir(unit.x, unit.y, next_cell2[0], next_cell2[1])
+                    print(direction, (unit.x,unit.y), next_cell2, file=f)
+                elif stack2:
+                    next_cell2 = stack2.pop()
+                    if(next_cell2 != (unit.x,unit.y) and not next_cell2 in valid_neighbors((unit.x,unit.y),visited2)):
+                        print("NEEED TO PATH BACK", file=f)
+                        start = time.time()
+                        path2 = a_star((unit.x,unit.y), next_cell2)
+                        adj = valid_neighbors2(next_cell2, visited2)
+                        for n in adj:
+                            if not visited2[n[0]][n[1]]:
+                                stack2.append(n)
+                        print(time.time()-start, file=f)
+                    else:
+                        visited2[next_cell2[0]][next_cell2[1]] = True
+                        direction = calculate_dir(unit.x, unit.y, next_cell2[0], next_cell2[1])
+                        adj = valid_neighbors2(next_cell2, visited2)
+                        for n in adj:
+                            if not visited2[n[0]][n[1]] and not n in stack2:
+                                stack2.append(n)
+                else:
+                    direction = random.choice(list(Direction)).value
+            else:
+                if opposingUnits and not chasing3 and unit.distance < 50:
+                    chasing3 = True
+                    path3=[]
+                    hide = opposingUnits[0]
+                    hide_cell = (hide.x, hide.y)
+                    chase = a_star((unit.x,unit.y),(hide.x,hide.y))
+                    
+                if chase3 and chasing3:
+                    next_cell= chase3.pop(0)
                     direction = calculate_dir(unit.x, unit.y, next_cell[0], next_cell[1])
                 else:
-                    found=False
-                    path = shortest_path_moves((unit.x,unit.y),init) #random pp
-                    direction = Direction.STILL.value
-
-                print("Round", round_num, file=f)
-                print("%d (%d, %d)" % (direction, unit.x, unit.y), file=f)
-                '''
-            else:
-                direction = Direction.NORTH.value
+                    direction = random.choice(list(Direction)).value
 
             # apply direction to current unit's position to check if that new position is on the game map
             (x, y) = apply_direction(unit.x, unit.y, direction)
@@ -365,18 +455,18 @@ while True:
         # hider code, which does nothing, sits tight and hopes it doesn't get 
         # found by seekers
         #print(opposingUnits, file=f)
-        if(opposingUnits):
-            direction = Direction.SOUTH.value
-            for unitd in opposingUnits:
-                print("SEEKER:", unitd.id, file=f)
-        else:
-            direction = Direction.STILL.value
-        (x, y) = apply_direction(unit.x, unit.y, direction)
-        if (x < 0 or y < 0 or x >= len(game_map[0]) or y >= len(game_map)):
-            # we do nothing if the new position is not in the map
-            pass
-        else:
-            commands.append(unit.move(direction))
+        for _, unit in enumerate(units):
+            if opposingUnits:
+                direction = opposite_direction(unit, opposingUnits[0])
+                print(unit.id, hide_stack, file=f)
+            else:
+                direction = Direction.SOUTH.value
+            (x, y) = apply_direction(unit.x, unit.y, direction)
+            if (x < 0 or y < 0 or x >= len(game_map[0]) or y >= len(game_map)):
+                # we do nothing if the new position is not in the map
+                pass
+            else:
+                commands.append(unit.move(direction))
 
 
 
