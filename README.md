@@ -34,3 +34,4 @@ My bot is definitely not perfect. There are many improvements to my bots such as
 
 
 
+Thanks to <img src="https://avatars3.githubusercontent.com/u/48527658?s=200&v=4s=30" width="50" height="50" />
