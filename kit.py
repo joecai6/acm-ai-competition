@@ -59,8 +59,6 @@ class Unit:
         self.x = x
         self.y = y
         self.distance = dist
-        self.stack = [(self.x,self.y)]
-        self.visited = [[]]
 
     def move(self, dir: int) -> str:
         return "%d_%d" % (self.id, dir)
