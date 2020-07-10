@@ -12,7 +12,7 @@ The seeker and hider functions revolves around using A* Search Algorithm for pat
 
 Seeker Functionality
 
-![](./demo/seeker.gif)
+<img src="/demo/seeker.gif" width="250" height="250"/>
 
 My idea for the seeker was to cover the hiding spots which are the edges of the map and between walls where the seek has trouble detecting. Therefore I made the bot perform DFS on the whole map, which covers as much open edge cells as possible. The downside on this process is that the seeker might visit only one side of the map which takes a large amount of rounds away from detecting the hider. it perform this function until it can see the hider.
 
