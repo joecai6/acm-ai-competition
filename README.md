@@ -18,7 +18,8 @@ My idea for the seeker was to cover the hiding spots which are the edges of the 
 
 When it sees the hider, it performs the A* pathfinding algorithm to get the shortest path to the hider. Every time the hider moves, the seeker repeatedly uses the algorithm to find the shortest path. If the hider runs to a cell where the seeker cannot detect, the seeker moves to the last position of the hider. If it still does not see the hider, it goes back to doing DFS on the map.
 
-<br><br><br><br>
+<br><br><br><br><br>
+
 # Hider
 
 Hider Functionality
