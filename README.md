@@ -12,7 +12,7 @@ The seeker and hider functions revolves around using A* Search Algorithm for pat
 
 Seeker Functionality
 
-![Imgur](https://i.imgur.com/PFuQRne.gif)
+![](./demo/seeker.gif)
 
 My idea for the seeker was to cover the hiding spots which are the edges of the map and between walls where the seek has trouble detecting. Therefore I made the bot perform DFS on the whole map, which covers as much open edge cells as possible. The downside on this process is that the seeker might visit only one side of the map which takes a large amount of rounds away from detecting the hider. it perform this function until it can see the hider.
 
@@ -22,7 +22,7 @@ When it sees the hider, it performs the A* pathfinding algorithm to get the shor
 
 Hider Functionality
 
-![Imgur](https://i.imgur.com/flTpCz6.gif)
+![](./demo/hider.gif)
 
 I had two ideas for the hider: one was to move in the furthest direction away from the seeker and the other was to run around in circles so that the seeker has no chance of catching the hider.
 
@@ -33,6 +33,4 @@ The remaining hiders move to an island and traverse around it if found. The way 
 My bot is definitely not perfect. There are many improvements to my bots such as making the DFS more efficient in rounds and finding better directions to move to for the hider.
 
 
-
-![](https://avatars3.githubusercontent.com/u/48527658?s=200&v=4s=100)
 
