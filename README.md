@@ -14,7 +14,7 @@ Seeker Functionality
 
 <img src="/demo/seeker.gif" align="left" width="300" height="384"/>
 
-My idea for the seeker was to cover the hiding spots which are the edges of the map and between walls where the seek has trouble detecting. Therefore I made the bot perform DFS on the whole map, which covers as much open edge cells as possible. The downside on this process is that the seeker might visit only one side of the map which takes a large amount of rounds away from detecting the hider. it perform this function until it can see the hider.
+My idea for the seeker was to cover the hiding spots between walls where the seek has trouble detecting. Therefore I made the bot perform DFS on the whole map, which covers as much open edge cells as possible. The downside on this process is that the seeker might visit only one side of the map which takes a large amount of rounds away from detecting the hider. it perform this function until it can see the hider.
 
 When it sees the hider, it performs the A* pathfinding algorithm to get the shortest path to the hider. Every time the hider moves, the seeker repeatedly uses the algorithm to find the shortest path. If the hider runs to a cell where the seeker cannot detect, the seeker moves to the last position of the hider. If it still does not see the hider, it goes back to doing DFS on the map.
 
