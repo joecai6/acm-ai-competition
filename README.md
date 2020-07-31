@@ -4,6 +4,7 @@ This is my bot submission that won first place in the first [ACM AI Competition 
 
 My bot named "pizza" :pizza: has functionality for both hiding and seeking.
 
+Here is a [blog post](https://medium.com/acmucsd/how-to-hide-from-ai-the-winner-interview-82a59aed5b0b) about my experience with the competition.
 # Summary
 
 The seeker and hider functions revolves around using A* Search Algorithm for pathfinding. There are many ideas on how to implement the seeking/hiding, but I chose the one that I am most familiar with. My code for the bot is in the bot.py file, which contains all the functions and classes used. I am currently in the process of refactoring the code so that it is more readable and organized.
